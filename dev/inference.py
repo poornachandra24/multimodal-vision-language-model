@@ -78,7 +78,7 @@ def test_inference(
     generated_tokens = torch.cat(generated_tokens, dim=-1)
     # Decode the generated tokens
     decoded = processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
-
+    print(f"Generated Tokens: {decoded}")
     print(prompt + decoded)
 
 

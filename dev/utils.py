@@ -8,7 +8,7 @@ import os
 
 def load_hf_model(model_path: str, device: str) -> Tuple[PaliGemmaForConditionalGeneration, AutoTokenizer]:
     # Load the tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side="right")
+    tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side="right",local_files_only=True)
     assert tokenizer.padding_side == "right"
 
     # Find all the *.safetensors files

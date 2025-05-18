@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MODEL_PATH="/projects/multimodal-vision-language-model/models/paligemma-weights/paligemma-3b-pt-224"
-PROMPT="tell me about this animal "
+PROMPT="what is this?"
 IMAGE_FILE_PATH="/projects/multimodal-vision-language-model/dev/test_image/image.png"
 MAX_TOKENS_TO_GENERATE=100
 TEMPERATURE=0.8

@@ -62,16 +62,16 @@ multimodal-vision-language-model/
 
 4.  **Download Model Weights and Tokenizer:**
     The model architecture is designed to be compatible with pre-trained PaliGemma weights. You need to download these from Hugging Face Hub.
-        ```bash
-        python dev/get_tokenizer.py
-        ```
+    ```
+    python dev/get_tokenizer.py
+    ```
 
     *   **Hugging Face CLI - Requires Huggingface API Token for gated Models:**
-        Make sure you are logged into Hugging Face CLI:
+        Make sure you are logged into Hugging Face CLI and validate your token :
         ```bash
         huggingface-cli login
         ```
-    You can run `get_tokenizer.py`
+        then run `get_tokenizer.py`
 
     After running the download script, your `models/paligemma-weights/paligemma-3b-pt-224/` directory should contain:
     *   `config.json`
@@ -111,8 +111,9 @@ This will load the model, process the image and prompt, and generate text.
 ## Example Output
 Below is an example of the model's output for the provided image of a person running, along with some Comet ML logging information.
 - **Test Image:**
-![alt text](image.png)
+![alt text](dev/test_image/image2.png)
 - **Console Output & Comet Log Snippet:**
+![alt text](<Screenshot from 2025-05-18 14-20-56.png>)
 ```
 User Input:  
     You are a helpful assistant. 

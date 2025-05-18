@@ -4,6 +4,7 @@ import json
 import glob
 from safetensors import safe_open
 from typing import Tuple
+import numpy as np
 import os
 
 def load_hf_model(model_path: str, device: str) -> Tuple[PaliGemmaForConditionalGeneration, AutoTokenizer]:
@@ -36,3 +37,14 @@ def load_hf_model(model_path: str, device: str) -> Tuple[PaliGemmaForConditional
     model.tie_weights()
 
     return (model, tokenizer)
+
+
+# Convert ndarray to nested Python lists
+def make_serializable(arr):
+    if isinstance(arr, np.ndarray):
+        return {
+            'shape': arr.shape,
+            'data': arr.tolist(),
+            'dtype': str(arr.dtype)
+            }
+    return arr

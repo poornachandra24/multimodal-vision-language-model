@@ -1,10 +1,21 @@
+from comet_ml import start
+import os     
+experiment = start(
+  api_key= os.getenv("COMET_API_KEY"),
+  project_name="multimodal-vision-model",
+  workspace="poornachandra24"
+)
+
 from PIL import Image
 import torch
 import fire
-
 from processing_paligemma import PaliGemmaProcessor
 from modeling_gemma import KVCache, PaliGemmaForConditionalGeneration
-from utils import load_hf_model
+from utils import load_hf_model, make_serializable
+
+
+
+
 
 
 def move_inputs_to_device(model_inputs: dict, device: str):
@@ -16,6 +27,7 @@ def get_model_inputs(
     processor: PaliGemmaProcessor, prompt: str, image_file_path: str, device: str
 ):
     image = Image.open(image_file_path)
+    experiment.log_image(image)
     images = [image]
     prompts = [prompt]
     model_inputs = processor(text=prompts, images=images)
@@ -36,11 +48,14 @@ def test_inference(
 ):
     model_inputs = get_model_inputs(processor, prompt, image_file_path, device)
     input_ids = model_inputs["input_ids"]
+    experiment.log_parameter("Input IDs", make_serializable(input_ids))
     attention_mask = model_inputs["attention_mask"]
+    experiment.log_parameter("Inital Attention mask", make_serializable(attention_mask))
     pixel_values = model_inputs["pixel_values"]
+    experiment.log_parameter("Pixel values", make_serializable(pixel_values))
 
     kv_cache = KVCache()
-
+    experiment.log_parameter("KV Cache", kv_cache)
     # Generate tokens until you see the stop token
     stop_token = processor.tokenizer.eos_token_id
     generated_tokens = []
@@ -54,15 +69,22 @@ def test_inference(
             attention_mask=attention_mask,
             kv_cache=kv_cache,
         )
+        experiment.log_parameter("Outputs in loop", outputs)
         kv_cache = outputs["kv_cache"]
+        experiment.log_parameter("Output KV cache", outputs)
         next_token_logits = outputs["logits"][:, -1, :]
+        experiment.log_parameter("Next token logits", next_token_logits)
         # Sample the next token
         if do_sample:
             # Apply temperature
             next_token_logits = torch.softmax(next_token_logits / temperature, dim=-1)
+            experiment.log_parameter("Next token logits after temperature", make_serializable(next_token_logits))
+            # Apply top-p sampling
             next_token = _sample_top_p(next_token_logits, top_p)
+            experiment.log_parameter("Next token after top-p sampling", make_serializable(next_token))
         else:
             next_token = torch.argmax(next_token_logits, dim=-1, keepdim=True)
+            experiment.log_parameter("Next token after argmax", make_serializable(next_token))
         assert next_token.size() == (1, 1)
         next_token = next_token.squeeze(0)  # Remove batch dimension
         generated_tokens.append(next_token)
@@ -74,12 +96,15 @@ def test_inference(
         attention_mask = torch.cat(
             [attention_mask, torch.ones((1, 1), device=input_ids.device)], dim=-1
         )
+        experiment.log_parameter("Final Attention mask", make_serializable(attention_mask))
 
     generated_tokens = torch.cat(generated_tokens, dim=-1)
+    experiment.log_parameter("Encoded Generated tokens", generated_tokens)
     # Decode the generated tokens
     decoded = processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
-    print(f"Generated Tokens: {decoded}")
-    print(prompt + decoded)
+    experiment.log_parameter("Decoded Generated tokens", decoded)
+    print("User Input: ", prompt )
+    print("AI Response:",decoded)
 
 
 def _sample_top_p(probs: torch.Tensor, p: float):
@@ -123,7 +148,10 @@ def main(
 
     print(f"Loading model")
     model, tokenizer = load_hf_model(model_path, device)
+    # graph = model.to_json()
+    # experiment.set_model_graph(graph)
     model = model.to(device).eval()
+
 
     num_image_tokens = model.config.vision_config.num_image_tokens
     image_size = model.config.vision_config.image_size

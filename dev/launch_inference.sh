@@ -1,13 +1,17 @@
 #!/bin/bash
 
-MODEL_PATH="/projects/multimodal-vision-language-model/models/paligemma-weights/paligemma-3b-pt-224"
-PROMPT="what is this?"
-IMAGE_FILE_PATH="/projects/multimodal-vision-language-model/dev/test_image/image.png"
-MAX_TOKENS_TO_GENERATE=100
-TEMPERATURE=0.8
-TOP_P=0.9
-DO_SAMPLE="False"
-ONLY_CPU="False"
+MODEL_PATH="/home/poorna/pc_projects/multimodal-vision-language-model/models/paligemma-weights/paligemma-3b-pt-224"
+PROMPT="
+    You are a helpful assistant. 
+    Answer the following question based on the image provided.
+    Question: What is  in the image?
+    Answer:The images shows"
+IMAGE_FILE_PATH="/home/poorna/pc_projects/multimodal-vision-language-model/dev/test_image/image2.png"
+MAX_TOKENS_TO_GENERATE=1000
+TEMPERATURE=0.7
+TOP_P=0.8
+DO_SAMPLE="True"
+ONLY_CPU="True"
 
 python inference.py \
     --model_path "$MODEL_PATH" \

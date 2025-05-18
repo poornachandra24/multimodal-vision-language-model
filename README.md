@@ -110,10 +110,11 @@ This will load the model, process the image and prompt, and generate text.
 
 ## Example Output
 Below is an example of the model's output for the provided image of a person running, along with some Comet ML logging information.
-- **Test Image:**
+#### **Test Image:**
 ![alt text](dev/test_image/image2.png)
-- **Console Output & Comet Log Snippet:**
-![alt text](<Screenshot from 2025-05-18 14-20-56.png>)
+#### **Console Output & Comet Log Snippet:**
+![alt text](results/ss1.png)
+
 ```
 User Input:  
     You are a helpful assistant. 
